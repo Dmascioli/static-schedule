@@ -79,6 +79,7 @@ int trace_get_item(struct instruction **item)
 	int n_items;
 
 	if (trace_buf_ptr == trace_buf_end) {	/* if no more unprocessed items in the trace buffer, get new data  */
+		
 		n_items = fread(trace_buf, sizeof(struct instruction), TRACE_BUFSIZE, trace_fd);
 		if (!n_items) return 0;				/* if no more items in the file, we are done */
 
@@ -113,4 +114,3 @@ int write_trace(struct instruction item, char *fname)
 		
 	return 1;
 }
-

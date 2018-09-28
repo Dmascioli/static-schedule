@@ -10,6 +10,15 @@
 #include <arpa/inet.h>
 #include "CPU.h" 
 
+int branch_prediction_correctness(struct IF, struct instruction ID){
+	//this is meant to compare the PC of the instruction put in the pipeline after the branch, 
+	//and the target field of the branch instruction
+	//I didn't have enough time to look at what exactly the target field is composed of in
+	//the struct though
+	if(*IF.PC == *ID.dReg) return 1;
+	else return 0;
+}
+
 int catch_data_hazard(struct instruction WB, struct instruction ID, struct instruction MEM) //returns 1 if there is a data hazard found + the ID instruction needs to be stalled. 
 {
   unsigned char dReg = 'A';
@@ -48,15 +57,14 @@ int catch_data_hazard(struct instruction WB, struct instruction ID, struct instr
         case ti_JRTYPE:
           if (dReg == ID.sReg_a) {return 1;}
           break;
-      }
-
-      return 0;
+      } return 0;
 }
 
 int main(int argc, char **argv)
 {
   struct instruction *tr_entry;
-  struct instruction IF, ID, EX, MEM, WB;
+  struct prefetch_queue pQ;
+  struct instruction IF, ID, EX, MEM, WB, no-op = {0,0,0,0,0,0};
   size_t size;
   char *trace_file_name;
   int trace_view_on = 0;
@@ -99,20 +107,39 @@ int main(int argc, char **argv)
     }
     else{              /* move the pipeline forward */
       cycle_number++;
+      if(prediction_method == 0){
 
-      /* move instructions one stage ahead */
-      int data_hazard = catch_data_hazard(WB, ID, MEM);
-      WB = MEM;
-      MEM = EX;
-      //here is where we could insert the NOP to stall the pipeline. The ID cannot move to the EXE. 
-      if (data_hazard) {printf("\nData Hazard Found\n");} 
-      EX = ID;
-      ID = IF;
+      	int need_to_squash = branch_prediction_correctness(ID, EX, MEM);
+      	if(need_to_squash){
+      		EX = no-op;
+      		MEM = no-op;
+      	}
+      	else{
+      		 WB = MEM;
+     		 MEM = EX;
+     		 EX = ID;
+      		 ID = IF;
+      	}
+      }
+      else{
+	      /* move instructions one stage ahead */
+	      int data_hazard = catch_data_hazard(WB, ID, MEM);
+	      WB = MEM;
+	      MEM = EX;
+	      //here is where we could insert the NOP to stall the pipeline. The ID cannot move to the EXE. 
+	      if (data_hazard) {printf("\nData Hazard Found\n");} 
+	      EX = ID;
+	      ID = IF;
+  		}
 
       if(!size){    /* if no more instructions in trace, reduce flush_counter */
         flush_counter--;   
       }
       else{   /* copy trace entry into IF stage */
+        //didn't get to finish this either, but basically the IF needs to read from the pre-fetch queue,
+        // and I would say the prefetch queue needs to be "shifted" with every new instruction read.
+       // i.e. the first is read into if, second instruction becomes first and the next instruction made 2nd
+        &pQ =  {tr_entry, *tr_entry+sizeof(instruction)};
         memcpy(&IF, tr_entry , sizeof(IF));
       }
 
