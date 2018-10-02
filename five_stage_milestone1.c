@@ -1,4 +1,3 @@
-/**************************************************************/
 /* CS/COE 1541              
    compile with gcc -o pipeline five_stage_delayed_get_trace.c      
    and execute using              
@@ -81,7 +80,7 @@ int branch_prediction_correctness(struct instruction IF, struct instruction ID){
   //I didn't have enough time to look at what exactly the target field is composed of in
   //the struct though
   if (ID.type != ti_BRANCH) {return 0;}
-  if(IF.PC = ID.Addr) return 1;
+  if(IF.PC == ID.Addr) return 1;
   else return 0;
 }
 
@@ -194,8 +193,8 @@ int main(int argc, char **argv)
           
 
       if (control_hazard){
-         memcpy(&pq.instr1, &IF, sizeof(pq.instr1));
-         IF = get_NOP();
+        memcpy(&pq.instr1, &IF, sizeof(pq.instr1));
+        IF = get_NOP();
       }
 
       WB = MEM;
