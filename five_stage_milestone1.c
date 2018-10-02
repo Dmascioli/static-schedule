@@ -189,16 +189,14 @@ int main(int argc, char **argv)
           if (update == 1 && ID.Addr == IF.PC){
             branch_hash_table[index] = 1;
           }
-          if(control_hazard) {
-            memcpy(&pq.instr1, &IF, sizeof(pq.instr1));
-            IF = get_NOP();
-          //continue;
-          }
       }
     }
           
 
-      if (control_hazard){IF = get_NOP();}
+      if (control_hazard){
+         memcpy(&pq.instr1, &IF, sizeof(pq.instr1));
+         IF = get_NOP();
+      }
 
       WB = MEM;
       MEM = EX;
