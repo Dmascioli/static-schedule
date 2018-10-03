@@ -21,6 +21,14 @@ int main(int argc, char **argv)
   
   unsigned int cycle_number = 0;
 
+  struct prefetch_queue
+    {
+        struct instruction instr1_1;    //first instruction ahead for pipeline 1
+        struct instruction instr2_1;    //second instruction ahead for pipeline 1
+        struct instruction instr1_2;    //first instruction ahead for pipeline 2
+        struct instruction instr2_2;    //second instruction ahead for pipeline 2
+    };
+    
   if (argc == 1) {
     fprintf(stdout, "\nUSAGE: tv <trace_file> <switch - any character>\n");
     fprintf(stdout, "\n(switch) to turn on or off individual item view.\n\n");
@@ -64,16 +72,12 @@ int main(int argc, char **argv)
       MEM_2 = EX_2;
       EX_2 = ID_2;
 
-
-
-      
-
       if(!size_1){    /* if no more instructions in trace, reduce flush_counter */
         flush_counter_1--;
         flush_counter_2--;   
       }
-      else{   /* copy trace entry into IF stage */
-        memcpy(&IF, tr_entry , sizeof(IF));
+      else{   /* put into prefetch queue */
+        memcpy(&pq, tr_entry , sizeof(IF));
       }
 
       //printf("==============================================================================\n");
