@@ -1,0 +1,48 @@
+// branch_not_taken_mode_0.tr
+[cycle 5] BRANCH: (PC: 4)(sReg_a: 1)(sReg_b: 2)(addr: 123456789)
+[cycle 6] RTYPE: (PC: 8)(sReg_a: 4)(sReg_b: 5)(dReg: 6)  
+
+//branch_taken_mode_0.tr
+[cycle 5] BRANCH: (PC: 4)(sReg_a: 1)(sReg_b: 2)(addr: 123456789)
+[cycle 6] NOP:
+[cycle 7] RTYPE: (PC: 123456789)(sReg_a: 4)(sReg_b: 5)(dReg: 6) 
+
+//branch_not_taken_mode_1_correct_prediction.tr
+[cycle 5] BRANCH: (PC: 4)(sReg_a: 1)(sReg_b: 2)(addr: 123456789)
+[cycle 6] RTYPE: (PC: 8)(sReg_a: 4)(sReg_b: 5)(dReg: 6) 
+[cycle 7] BRANCH: (PC: 4)(sReg_a: 1)(sReg_b: 2)(addr: 123456789)
+[cycle 8] RTYPE: (PC: 8)(sReg_a: 4)(sReg_b: 5)(dReg: 6)
+
+//branch_not_taken_mode_1_incorrect_prediction.tr
+[cycle 5] BRANCH: (PC: 4)(sReg_a: 1)(sReg_b: 2)(addr: 132456789)
+[cycle 6] RTYPE: (PC: 8)(sReg_a: 4)(sReg_b: 5)(dReg: 6) 
+[cycle 7] BRANCH: (PC: 4)(sReg_a: 1)(sReg_b: 2)(addr: 123456789)
+[cycle 8] NOP:
+[cycle 9] RTYPE: (PC: 123456789)(sReg_a: 4)(sReg_b: 5)(dReg: 6)
+
+//branch_taken_mode_1_correct_prediction.tr
+[cycle 5] BRANCH: (PC: 4)(sReg_a: 1)(sReg_b: 2)(addr: 123456789)
+[cycle 6] NOP:
+[cycle 7] RTYPE: (PC: 123456789)(sReg_a: 4)(sReg_b: 5)(dReg: 6) 
+[cycle 8] BRANCH: (PC: 4)(sReg_a: 1)(sReg_b: 2)(addr: 123456789)
+[cycle 9] RTYPE: (PC: 123456789)(sReg_a: 4)(sReg_b: 5)(dReg: 6) 
+
+//branch_taken_mode_1_incorrect_prediction.tr
+[cycle 5] BRANCH: (PC: 4)(sReg_a: 1)(sReg_b: 2)(addr: 123456789)
+[cycle 6] NOP:
+[cycle 7] RTYPE: (PC: 123456789)(sReg_a: 4)(sReg_b: 5)(dReg: 6) 
+[cycle 8] BRANCH: (PC: 4)(sReg_a: 1)(sReg_b: 2)(addr: 123456789)
+[cycle 9] NOP:
+[cycle 10] RTYPE: (PC: 8)(sReg_a: 4)(sReg_b: 5)(dReg: 6) 
+//d_hazard.tr in mode 1
+[cycle 5] RTYPE: (PC: 0)(sReg_a: 1)(sReg_b: 2)(dReg: 3) 
+[cycle 6] LOAD: (PC: 4)(sReg_a: 3)(dReg: 1)(addr: 0)
+[cycle 7] LOAD: (PC: 4)(sReg_a: 1)(dReg: 3)(addr: 123456789)
+[cycle 8] NOP:
+[cycle 9] RTYPE: (PC: 8)(sReg_a: 3)(sReg_b: 2)(dReg: 1) 
+//d_hazard.tr in mode 0
+[cycle 5] RTYPE: (PC: 0)(sReg_a: 1)(sReg_b: 2)(dReg: 3) 
+[cycle 6] LOAD: (PC: 4)(sReg_a: 3)(dReg: 1)(addr: 0)
+[cycle 7] LOAD: (PC: 4)(sReg_a: 1)(dReg: 3)(addr: 123456789)
+[cycle 8] NOP:
+[cycle 9] RTYPE: (PC: 8)(sReg_a: 3)(sReg_b: 2)(dReg: 1) 
