@@ -14,6 +14,7 @@ int main(int argc, char **argv)
 {
   struct instruction *tr_entry_1, *tr_entry_2;
   struct instruction IF_1, ID_1, EX_1, MEM_1, WB_1, IF_2, ID_2, EX_2, MEM_2, WB_2;
+  struct instruction NO_OP = get_NOP();
   size_t size_1, size_2;
   char *trace_file_name;
   int trace_view_on = 0;
@@ -27,8 +28,8 @@ int main(int argc, char **argv)
         struct instruction instr2_1;    //second instruction ahead for pipeline 1
         struct instruction instr1_2;    //first instruction ahead for pipeline 2
         struct instruction instr2_2;    //second instruction ahead for pipeline 2
-    };
-    
+    } pq;
+
   if (argc == 1) {
     fprintf(stdout, "\nUSAGE: tv <trace_file> <switch - any character>\n");
     fprintf(stdout, "\n(switch) to turn on or off individual item view.\n\n");
@@ -54,9 +55,12 @@ int main(int argc, char **argv)
     if( size_1 ) {
       size_2 = trace_get_item(&tr_entry_2);
     }
+    else {
+      memcpy(tr_entry_2, &NO_OP, sizeof(*tr_entry_2));;
+    }
     
    
-    if (!size_1 && flush_counter_1==0) {       /* no more instructions (instructions) to simulate */
+    if (!size_1 && flush_counter_1==0 && flush_counter_2==0) {       /* no more instructions (instructions) to simulate */
       printf("+ Simulation terminates at cycle : %u\n", cycle_number);
       break;
     }
@@ -67,17 +71,20 @@ int main(int argc, char **argv)
       WB_1 = MEM_1;
       MEM_1 = EX_1;
       EX_1 = ID_1;
+      ID_1 = IF_1;
 
       WB_2 = MEM_2;
       MEM_2 = EX_2;
       EX_2 = ID_2;
+      ID_2 = IF_2;
 
       if(!size_1){    /* if no more instructions in trace, reduce flush_counter */
         flush_counter_1--;
         flush_counter_2--;   
       }
       else{   /* put into prefetch queue */
-        memcpy(&pq, tr_entry , sizeof(IF));
+        memcpy(&IF_1, tr_entry_1, sizeof(IF_1));
+        memcpy(&IF_2, tr_entry_2, sizeof(IF_2));
       }
 
       //printf("==============================================================================\n");
@@ -85,42 +92,81 @@ int main(int argc, char **argv)
 
 
     if (trace_view_on && cycle_number>=5) {/* print the executed instruction if trace_view_on=1 */
-      switch(WB.type) {
+      printf("[cycle %d] \t", cycle_number);
+      switch(WB_1.type) {
         case ti_NOP:
-          printf("[cycle %d] NOP:\n",cycle_number) ;
+          printf("NOP:\n") ;
           break;
         case ti_RTYPE: /* registers are translated for printing by subtracting offset  */
-          printf("[cycle %d] RTYPE:",cycle_number) ;
-          printf(" (PC: %d)(sReg_a: %d)(sReg_b: %d)(dReg: %d) \n", WB.PC, WB.sReg_a, WB.sReg_b, WB.dReg);
+          printf("RTYPE:") ;
+          printf(" (PC: %d)(sReg_a: %d)(sReg_b: %d)(dReg: %d) \n", WB_1.PC, WB_1.sReg_a, WB_1.sReg_b, WB_1.dReg);
           break;
         case ti_ITYPE:
-          printf("[cycle %d] ITYPE:",cycle_number) ;
-          printf(" (PC: %d)(sReg_a: %d)(dReg: %d)(addr: %d)\n", WB.PC, WB.sReg_a, WB.dReg, WB.Addr);
+          printf("ITYPE:") ;
+          printf(" (PC: %d)(sReg_a: %d)(dReg: %d)(addr: %d)\n", WB_1.PC, WB_1.sReg_a, WB_1.dReg, WB_1.Addr);
           break;
         case ti_LOAD:
-          printf("[cycle %d] LOAD:",cycle_number) ;      
-          printf(" (PC: %d)(sReg_a: %d)(dReg: %d)(addr: %d)\n", WB.PC, WB.sReg_a, WB.dReg, WB.Addr);
+          printf("LOAD:") ;      
+          printf(" (PC: %d)(sReg_a: %d)(dReg: %d)(addr: %d)\n", WB_1.PC, WB_1.sReg_a, WB_1.dReg, WB_1.Addr);
           break;
         case ti_STORE:
-          printf("[cycle %d] STORE:",cycle_number) ;      
-          printf(" (PC: %d)(sReg_a: %d)(sReg_b: %d)(addr: %d)\n", WB.PC, WB.sReg_a, WB.sReg_b, WB.Addr);
+          printf("STORE:") ;      
+          printf(" (PC: %d)(sReg_a: %d)(sReg_b: %d)(addr: %d)\n", WB_1.PC, WB_1.sReg_a, WB_1.sReg_b, WB_1.Addr);
           break;
         case ti_BRANCH:
-          printf("[cycle %d] BRANCH:",cycle_number) ;
-          printf(" (PC: %d)(sReg_a: %d)(sReg_b: %d)(addr: %d)\n", WB.PC, WB.sReg_a, WB.sReg_b, WB.Addr);
+          printf("BRANCH:") ;
+          printf(" (PC: %d)(sReg_a: %d)(sReg_b: %d)(addr: %d)\n", WB_1.PC, WB_1.sReg_a, WB_1.sReg_b, WB_1.Addr);
           break;
         case ti_JTYPE:
-          printf("[cycle %d] JTYPE:",cycle_number) ;
-          printf(" (PC: %d)(addr: %d)\n", WB.PC,WB.Addr);
+          printf("JTYPE:") ;
+          printf(" (PC: %d)(addr: %d)\n", WB_1.PC,WB_1.Addr);
           break;
         case ti_SPECIAL:
-          printf("[cycle %d] SPECIAL:\n",cycle_number) ;      	
+          printf("SPECIAL:\n") ;      	
           break;
         case ti_JRTYPE:
-          printf("[cycle %d] JRTYPE:",cycle_number) ;
-          printf(" (PC: %d) (sReg_a: %d)(addr: %d)\n", WB.PC, WB.dReg, WB.Addr);
+          printf("JRTYPE:") ;
+          printf(" (PC: %d) (sReg_a: %d)(addr: %d)\n", WB_1.PC, WB_1.dReg, WB_1.Addr);
           break;
       }
+      printf("\t\t");
+    switch(WB_2.type) {
+      
+      case ti_NOP:
+          printf("NOP:\n") ;
+          break;
+        case ti_RTYPE: /* registers are translated for printing by subtracting offset  */
+          printf("RTYPE:") ;
+          printf(" (PC: %d)(sReg_a: %d)(sReg_b: %d)(dReg: %d) \n", WB_2.PC, WB_2.sReg_a, WB_2.sReg_b, WB_2.dReg);
+          break;
+        case ti_ITYPE:
+          printf("ITYPE:") ;
+          printf(" (PC: %d)(sReg_a: %d)(dReg: %d)(addr: %d)\n", WB_2.PC, WB_2.sReg_a, WB_2.dReg, WB_2.Addr);
+          break;
+        case ti_LOAD:
+          printf("LOAD:") ;      
+          printf(" (PC: %d)(sReg_a: %d)(dReg: %d)(addr: %d)\n", WB_2.PC, WB_2.sReg_a, WB_2.dReg, WB_2.Addr);
+          break;
+        case ti_STORE:
+          printf("STORE:") ;      
+          printf(" (PC: %d)(sReg_a: %d)(sReg_b: %d)(addr: %d)\n", WB_2.PC, WB_2.sReg_a, WB_2.sReg_b, WB_2.Addr);
+          break;
+        case ti_BRANCH:
+          printf("BRANCH:") ;
+          printf(" (PC: %d)(sReg_a: %d)(sReg_b: %d)(addr: %d)\n", WB_2.PC, WB_2.sReg_a, WB_2.sReg_b, WB_2.Addr);
+          break;
+        case ti_JTYPE:
+          printf("JTYPE:") ;
+          printf(" (PC: %d)(addr: %d)\n", WB_2.PC,WB_2.Addr);
+          break;
+        case ti_SPECIAL:
+          printf("SPECIAL:\n") ;        
+          break;
+        case ti_JRTYPE:
+          printf("JRTYPE:") ;
+          printf(" (PC: %d) (sReg_a: %d)(addr: %d)\n", WB_2.PC, WB_2.dReg, WB_2.Addr);
+          break;
+    }
     }
   }
 
