@@ -37,13 +37,19 @@ struct instruction get_NOP()
 	return No_OP;
 }
 
- struct prefetch_queue
+ struct prefetch_queue_m2
     {
         struct instruction instr1_1;    //first instruction ahead for pipeline 1
         struct instruction instr2_1;    //second instruction ahead for pipeline 1
         struct instruction instr1_2;    //first instruction ahead for pipeline 2
         struct instruction instr2_2;    //second instruction ahead for pipeline 2
     };
+
+struct prefetch_queue
+{
+	struct instruction instr1;
+	struct instruction instr2;
+};
 
  struct packing_buffer 
  	{
