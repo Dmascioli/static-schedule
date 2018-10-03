@@ -1,10 +1,12 @@
+
 int branch_prediction_correctness(struct instruction ID_1, struct packing_buffer packer){
   if (ID_1.type != ti_BRANCH) {return 0;}
-  if (packer.inst_for_pipe_1.PC == ID_1.Addr | packer.inst_for_pipe_2 == ID_1.Addr) {return 1;}
+  if ((packer.inst_for_pipe_1.PC == ID_1.Addr) | (packer.inst_for_pipe_2.PC == ID_1.Addr) {return 1;}
   else return 0;
 }
 
-struct packing_buffer pack_me(struct prefetch_queue pq) {
+struct packing_buffer pack_me(struct prefetch_queue_m2 pq) {
+    struct instruction NO_OP = get_NOP();
   struct packing_buffer pb = {NO_OP, NO_OP};
   //int b_not_packed = 0;
   if (pq.instr1_1.PC == 0 && pq.instr1_2.PC == 0){printf("error in reading into the prefetch queue.") return pb;}
@@ -94,7 +96,6 @@ int catch_data_hazard(struct instruction a, struct instruction b) //returns 1 if
           break;
       }
        return 0;
-}
   if (a.type != ti_LOAD) {return 0;}
   switch(b.type) {
         case ti_RTYPE: /* registers are translated for printing by subtracting offset  */
@@ -115,4 +116,5 @@ int catch_data_hazard(struct instruction a, struct instruction b) //returns 1 if
       
 
       return 0;
+}
 }
