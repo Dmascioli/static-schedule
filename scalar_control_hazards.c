@@ -154,24 +154,26 @@ int main(int argc, char **argv)
       else{   /* put into prefetch queue */
         struct instruction temp1, temp2;
         if(pq.instr1.PC == 0){
-          printf("nothing in pq\n");
            memcpy(&temp1, tr_entry_1, sizeof(temp1));
            memcpy(&temp2, tr_entry_2, sizeof(temp2));
          }
          else{
           temp1 = pq.instr1;
-          printf("something in pq\n");
-          printf("temp1 pc %d\n", temp1.PC);
           memcpy(&temp2, tr_entry_1, sizeof(temp2));
           pq.instr1 = NO_OP;
          }
         switch(temp1.type){
-          case(ti_RTYPE) :
-          case(ti_ITYPE) :
           case(ti_BRANCH) :
           case(ti_JTYPE) :
-          case(ti_SPECIAL) :
           case(ti_JRTYPE): {
+            pb.inst_for_pipe_1 = temp1;
+            pq.instr1 = temp2;
+            pb.inst_for_pipe_2 = NO_OP;
+            break;
+          }
+          case(ti_RTYPE) :
+          case(ti_ITYPE) :
+          case(ti_SPECIAL) : {
             pb.inst_for_pipe_1 = temp1;
             if(temp2.type == ti_LOAD || temp2.type == ti_STORE){
               pb.inst_for_pipe_2 = temp2;
@@ -184,17 +186,13 @@ int main(int argc, char **argv)
           }
           case(ti_LOAD) :
           case(ti_STORE) : {
-            printf("is a ls\n");
             pb.inst_for_pipe_2 = temp1;
             if((temp2.type == ti_LOAD) || (temp2.type == ti_STORE)){
-                           printf("is ls x2\n");
               pq.instr1 = temp2;
               pb.inst_for_pipe_1 = NO_OP;
             }
             else{
-              printf("is not ls\n");
               pb.inst_for_pipe_1 = temp2;
-
             }
             break;
           } 
