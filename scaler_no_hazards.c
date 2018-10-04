@@ -10,64 +10,64 @@
 #include <arpa/inet.h>
 #include "CPU.h" 
 
-int branch_prediction_correctness(struct instruction ID_1, struct packing_buffer packer) {
-  if (ID_1.type != ti_BRANCH) {return 0;}
-  if ((packer.inst_for_pipe_1.PC == ID_1.Addr) || (packer.inst_for_pipe_2.PC == ID_1.Addr)) {return 1;}
-  else return 0;
-}
+// int branch_prediction_correctness(struct instruction ID_1, struct packing_buffer packer) {
+//   if (ID_1.type != ti_BRANCH) {return 0;}
+//   if ((packer.inst_for_pipe_1.PC == ID_1.Addr) || (packer.inst_for_pipe_2.PC == ID_1.Addr)) {return 1;}
+//   else return 0;
+// }
 
-struct packing_buffer pack_me(struct prefetch_queue_m2 pq) {
-  struct instruction NO_OP = get_NOP();
-  struct packing_buffer pb = {NO_OP, NO_OP};
-  //int b_not_packed = 0;
-  if (pq.instr1_1.PC == 0 && pq.instr1_2.PC == 0){printf("error in reading into the prefetch queue."); return pb;}
-  struct instruction a = pq.instr1_1;
-  struct instruction b = pq.instr1_2;
+// struct packing_buffer pack_me(struct prefetch_queue_m2 pq) {
+//   struct instruction NO_OP = get_NOP();
+//   struct packing_buffer pb = {NO_OP, NO_OP};
+//   //int b_not_packed = 0;
+//   if (pq.instr1_1.PC == 0 && pq.instr1_2.PC == 0){printf("error in reading into the prefetch queue."); return pb;}
+//   struct instruction a = pq.instr1_1;
+//   struct instruction b = pq.instr1_2;
 
-  int not_packable = 1;
-  //catch_data_hazard(a,b);
+//   int not_packable = 0;
+//   //catch_data_hazard(a,b);
 
-  if (not_packable) {
-    //somehow set b_not_packed flag
-    if (a.type == ti_STORE || a.type == ti_LOAD) { pb.inst_for_pipe_1 = NO_OP; pb.inst_for_pipe_2 = a; } 
-    else { pb.inst_for_pipe_1 = a; pb.inst_for_pipe_2 = NO_OP; }
-    return pb;
-  }
-  //case 1 and b can be packed together and neither are branch or jumps
-  if (a.type == ti_NOP)
-  {
-    if (b.type == ti_STORE || b.type == ti_LOAD) { pb.inst_for_pipe_1 = a; pb.inst_for_pipe_2 = b;}
-    else {pb.inst_for_pipe_1 = b;  pb.inst_for_pipe_2 = a; }
-  } 
-  else if (a.type ==  ti_RTYPE || a.type == ti_ITYPE || a.type == ti_SPECIAL) {
-    if (b.type == ti_STORE || b.type == ti_LOAD) {pb.inst_for_pipe_1 = a; pb.inst_for_pipe_2 = b;}
-    else {
-      pb.inst_for_pipe_1 = a;
-      pb.inst_for_pipe_2 = NO_OP;
-     // b_not_packed = 1;
-    }
-  }
-  else if (a.type == ti_STORE || a.type == ti_LOAD) {
-      if (b.type != ti_STORE && b.type != ti_LOAD) {pb.inst_for_pipe_1 = b, pb.inst_for_pipe_2 = a;}
-      else {
-        pb.inst_for_pipe_1 = NO_OP;
-        pb.inst_for_pipe_2 = a;
-        //b_not_packed = 1;
-      } 
-  }
-  else {
-     pb.inst_for_pipe_1 = a;
-     pb.inst_for_pipe_2 = NO_OP;
-     //b_not_packed = 1;
-  }
+//   if (not_packable) {
+//     //somehow set b_not_packed flag
+//     if (a.type == ti_STORE || a.type == ti_LOAD) { pb.inst_for_pipe_1 = NO_OP; pb.inst_for_pipe_2 = a; } 
+//     else { pb.inst_for_pipe_1 = a; pb.inst_for_pipe_2 = NO_OP; }
+//     return pb;
+//   }
+//   //case 1 and b can be packed together and neither are branch or jumps
+//   if (a.type == ti_NOP)
+//   {
+//     if (b.type == ti_STORE || b.type == ti_LOAD) { pb.inst_for_pipe_1 = a; pb.inst_for_pipe_2 = b;}
+//     else {pb.inst_for_pipe_1 = b;  pb.inst_for_pipe_2 = a; }
+//   } 
+//   else if (a.type ==  ti_RTYPE || a.type == ti_ITYPE || a.type == ti_SPECIAL) {
+//     if (b.type == ti_STORE || b.type == ti_LOAD) {pb.inst_for_pipe_1 = a; pb.inst_for_pipe_2 = b;}
+//     else {
+//       pb.inst_for_pipe_1 = a;
+//       pb.inst_for_pipe_2 = NO_OP;
+//      // b_not_packed = 1;
+//     }
+//   }
+//   else if (a.type == ti_STORE || a.type == ti_LOAD) {
+//       if (b.type != ti_STORE && b.type != ti_LOAD) {pb.inst_for_pipe_1 = b, pb.inst_for_pipe_2 = a;}
+//       else {
+//         pb.inst_for_pipe_1 = NO_OP;
+//         pb.inst_for_pipe_2 = a;
+//         //b_not_packed = 1;
+//       } 
+//   }
+//   else {
+//      pb.inst_for_pipe_1 = a;
+//      pb.inst_for_pipe_2 = NO_OP;
+//      //b_not_packed = 1;
+//   }
 
-  //if (b_not_packed){
-    //somehow set a flag
+//   //if (b_not_packed){
+//     //somehow set a flag
     
-  //}
-  return pb;
+//   //}
+//   return pb;
 
-}
+// }
 
 
 // int catch_data_hazard(struct instruction a, struct instruction b) //returns 1 if the two instructions cannot be packed together 
@@ -128,8 +128,6 @@ struct packing_buffer pack_me(struct prefetch_queue_m2 pq) {
 //         case ti_JRTYPE:
 //           if (a.dReg == b.sReg_a) {return 1;}
 //           break;
-      
-
 //       return 0;
 //   }
 // }
@@ -144,7 +142,8 @@ int main(int argc, char **argv)
   int trace_view_on = 0;
   int flush_counter_1 = 4, flush_counter_2 = 4; //5 stage pipeline, so we have to move 4 instructions once trace is done
   unsigned int cycle_number = 0;
-  struct prefetch_queue_m2 pq = {NO_OP, NO_OP, NO_OP, NO_OP};
+  struct prefetch_queue pq = {NO_OP, NO_OP};
+  struct packing_buffer pb = {NO_OP, NO_OP};
 
   if (argc == 1) {
     fprintf(stdout, "\nUSAGE: tv <trace_file> <switch - any character>\n");
@@ -153,7 +152,7 @@ int main(int argc, char **argv)
   }
     
   trace_file_name = argv[1];
-  if (argc == 3) trace_view_on = atoi(argv[2]) ;
+  if (argc == 4) trace_view_on = atoi(argv[3]) ;
 
   fprintf(stdout, "\n ** opening file %s\n", trace_file_name);
 
@@ -167,12 +166,19 @@ int main(int argc, char **argv)
   trace_init();
 
   while(1) {
-    size_1 = trace_get_item(&tr_entry_1); /* put the instruction into a buffer */
-    if( size_1 ) {
-      size_2 = trace_get_item(&tr_entry_2);
+    if(pq.instr1.PC == 0){
+      size_1 = trace_get_item(&tr_entry_1); /* put the instruction into a buffer */
+      if(size_1) {
+        size_2 = trace_get_item(&tr_entry_2);
+      }
+      else {
+        memcpy(tr_entry_2, &NO_OP, sizeof(*tr_entry_2));;
+      }
+  
     }
-    else {
-      memcpy(tr_entry_2, &NO_OP, sizeof(*tr_entry_2));;
+    else{
+      size_1 = trace_get_item(&tr_entry_1);
+      printf("pq instr1 pc %d \n", pq.instr1.PC);
     }
     
    
@@ -182,6 +188,7 @@ int main(int argc, char **argv)
     }
     else{              /* move the pipeline forward */
       cycle_number++;
+     //printf("pq instr 1 PC: %d\n" ,pq.instr1.PC);
 
       /* move instructions one stage ahead */
       WB_1 = MEM_1;
@@ -199,8 +206,48 @@ int main(int argc, char **argv)
         flush_counter_2--;   
       }
       else{   /* put into prefetch queue */
-        memcpy(&IF_1, tr_entry_1, sizeof(IF_1));
-        memcpy(&IF_2, tr_entry_2, sizeof(IF_2));
+        struct instruction temp1, temp2;
+        if(pq.instr1.PC == 0){
+           memcpy(&temp1, tr_entry_1, sizeof(temp1));
+           memcpy(&temp2, tr_entry_2, sizeof(temp2));
+         }
+         else{
+          temp1 = pq.instr1;
+          memcpy(&temp2, tr_entry_1, sizeof(temp2));
+          pq.instr1 = NO_OP;
+         }
+        switch(temp1.type){
+          case(ti_RTYPE) :
+          case(ti_ITYPE) :
+          case(ti_BRANCH) :
+          case(ti_JTYPE) :
+          case(ti_SPECIAL) :
+          case(ti_JRTYPE): {
+            pb.inst_for_pipe_1 = temp1;
+            if(temp2.type == ti_LOAD || temp2.type == ti_STORE){
+              pb.inst_for_pipe_2 = temp2;
+            }
+            else{
+              pq.instr1 = temp2;
+              pb.inst_for_pipe_2 = NO_OP;
+            }
+            break;
+          }
+          case(ti_LOAD) :
+          case(ti_STORE) : {
+            pb.inst_for_pipe_2 = temp1;
+            if(temp2.type != ti_LOAD || temp2.type != ti_STORE){
+              pb.inst_for_pipe_1 = temp2;
+            }
+            else{
+              pq.instr1 = temp2;
+              pb.inst_for_pipe_1 = NO_OP;
+            }
+            break;
+          } 
+        }
+        IF_1 = pb.inst_for_pipe_1;
+        IF_2 = pb.inst_for_pipe_2;
       }
 
       //printf("==============================================================================\n");
