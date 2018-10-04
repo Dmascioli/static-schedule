@@ -10,9 +10,9 @@
 #include <arpa/inet.h>
 #include "CPU.h" 
 
-int branch_prediction_correctness(struct instruction ID_1, struct instruction branch_pipeline_instr) {
+int branch_prediction_correctness(struct instruction ID_1, struct packing_buffer packer) {
   if (ID_1.type != ti_BRANCH) {return 0;}
-  if ((branch_pipeline_instr.PC == ID_1.Addr)) {return 1;}
+  if ((packer.inst_for_pipe_1.PC == ID_1.Addr) || (packer.inst_for_pipe_2.PC == ID_1.Addr)) {return 1;}
   else return 0;
 }
 
@@ -125,7 +125,6 @@ int main(int argc, char **argv)
     }
     else{
       size_1 = trace_get_item(&tr_entry_1);
-      printf("pq instr1 pc %d \n", pq.instr1.PC);
     }
     
     if (!size_1) {memcpy(tr_entry_1, &NO_OP, sizeof(*tr_entry_1));}
@@ -153,19 +152,17 @@ int main(int argc, char **argv)
         flush_counter_2--;   
       }
       else{   /* put into prefetch queue */
-      printf("inside else\n");
         struct instruction temp1, temp2;
         if(pq.instr1.PC == 0){
-          printf("there's nothing in the pfq\n");
+          printf("nothing in pq\n");
            memcpy(&temp1, tr_entry_1, sizeof(temp1));
            memcpy(&temp2, tr_entry_2, sizeof(temp2));
          }
          else{
           temp1 = pq.instr1;
-          printf("there's something in the pfq\n");
+          printf("something in pq\n");
           printf("temp1 pc %d\n", temp1.PC);
           memcpy(&temp2, tr_entry_1, sizeof(temp2));
-          printf("temp2 pc %d\n", temp2.PC);
           pq.instr1 = NO_OP;
          }
         switch(temp1.type){
@@ -175,7 +172,6 @@ int main(int argc, char **argv)
           case(ti_JTYPE) :
           case(ti_SPECIAL) :
           case(ti_JRTYPE): {
-            printf("was not load or store\n");
             pb.inst_for_pipe_1 = temp1;
             if(temp2.type == ti_LOAD || temp2.type == ti_STORE){
               pb.inst_for_pipe_2 = temp2;
@@ -188,14 +184,17 @@ int main(int argc, char **argv)
           }
           case(ti_LOAD) :
           case(ti_STORE) : {
-            printf("was load or store\n");
+            printf("is a ls\n");
             pb.inst_for_pipe_2 = temp1;
-            if(temp2.type != ti_LOAD || temp2.type != ti_STORE){
-              pb.inst_for_pipe_1 = temp2;
-            }
-            else{
+            if((temp2.type == ti_LOAD) || (temp2.type == ti_STORE)){
+                           printf("is ls x2\n");
               pq.instr1 = temp2;
               pb.inst_for_pipe_1 = NO_OP;
+            }
+            else{
+              printf("is not ls\n");
+              pb.inst_for_pipe_1 = temp2;
+
             }
             break;
           } 
