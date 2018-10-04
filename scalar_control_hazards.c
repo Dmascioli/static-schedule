@@ -153,7 +153,7 @@ int main(int argc, char **argv)
         flush_counter_2--;   
       }
       else{   /* put into prefetch queue */
-      printf("inside else");
+      printf("inside else\n");
         struct instruction temp1, temp2;
         if(pq.instr1.PC == 0){
           printf("there's nothing in the pfq\n");
@@ -165,6 +165,7 @@ int main(int argc, char **argv)
           printf("there's something in the pfq\n");
           printf("temp1 pc %d\n", temp1.PC);
           memcpy(&temp2, tr_entry_1, sizeof(temp2));
+          printf("temp2 pc %d\n", temp2.PC);
           pq.instr1 = NO_OP;
          }
         switch(temp1.type){
