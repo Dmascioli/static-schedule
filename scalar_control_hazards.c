@@ -10,11 +10,11 @@
 #include <arpa/inet.h>
 #include "CPU.h" 
 
-// int branch_prediction_correctness(struct instruction ID_1, struct packing_buffer packer) {
-//   if (ID_1.type != ti_BRANCH) {return 0;}
-//   if ((packer.inst_for_pipe_1.PC == ID_1.Addr) || (packer.inst_for_pipe_2.PC == ID_1.Addr)) {return 1;}
-//   else return 0;
-// }
+int branch_prediction_correctness(struct instruction ID_1, struct instruction branch_pipeline_instr) {
+  if (ID_1.type != ti_BRANCH) {return 0;}
+  if ((branch_pipeline_instr.PC == ID_1.Addr)) {return 1;}
+  else return 0;
+}
 
 
 // int catch_data_hazard(struct instruction a, struct instruction b) //returns 1 if the two instructions cannot be packed together 
@@ -128,8 +128,8 @@ int main(int argc, char **argv)
       printf("pq instr1 pc %d \n", pq.instr1.PC);
     }
     
-   
-    if (!size_1 && flush_counter_1==0 && flush_counter_2==0) {       /* no more instructions (instructions) to simulate */
+    if (!size_1) {memcpy(tr_entry_1, &NO_OP, sizeof(*tr_entry_1));}
+    if (!size_1 && flush_counter_1<=0 && flush_counter_2<=0) {       /* no more instructions (instructions) to simulate */
       printf("+ Simulation terminates at cycle : %u\n", cycle_number);
       break;
     }
@@ -148,18 +148,22 @@ int main(int argc, char **argv)
       EX_2 = ID_2;
       ID_2 = IF_2;
 
-      if(!size_1){    /* if no more instructions in trace, reduce flush_counter */
+      if(!size_1 && (pq.instr1.PC == 0)){    /* if no more instructions in trace, reduce flush_counter */
         flush_counter_1--;
         flush_counter_2--;   
       }
       else{   /* put into prefetch queue */
+      printf("inside else");
         struct instruction temp1, temp2;
         if(pq.instr1.PC == 0){
+          printf("there's nothing in the pfq\n");
            memcpy(&temp1, tr_entry_1, sizeof(temp1));
            memcpy(&temp2, tr_entry_2, sizeof(temp2));
          }
          else{
           temp1 = pq.instr1;
+          printf("there's something in the pfq\n");
+          printf("temp1 pc %d\n", temp1.PC);
           memcpy(&temp2, tr_entry_1, sizeof(temp2));
           pq.instr1 = NO_OP;
          }
@@ -170,6 +174,7 @@ int main(int argc, char **argv)
           case(ti_JTYPE) :
           case(ti_SPECIAL) :
           case(ti_JRTYPE): {
+            printf("was not load or store\n");
             pb.inst_for_pipe_1 = temp1;
             if(temp2.type == ti_LOAD || temp2.type == ti_STORE){
               pb.inst_for_pipe_2 = temp2;
@@ -182,6 +187,7 @@ int main(int argc, char **argv)
           }
           case(ti_LOAD) :
           case(ti_STORE) : {
+            printf("was load or store\n");
             pb.inst_for_pipe_2 = temp1;
             if(temp2.type != ti_LOAD || temp2.type != ti_STORE){
               pb.inst_for_pipe_1 = temp2;

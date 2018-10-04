@@ -128,7 +128,7 @@ int main(int argc, char **argv)
       printf("pq instr1 pc %d \n", pq.instr1.PC);
     }
     
-   
+       if (!size_1) {memcpy(tr_entry_1, &NO_OP, sizeof(*tr_entry_1));}
     if (!size_1 && flush_counter_1==0 && flush_counter_2==0) {       /* no more instructions (instructions) to simulate */
       printf("+ Simulation terminates at cycle : %u\n", cycle_number);
       break;
