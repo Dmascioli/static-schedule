@@ -89,7 +89,7 @@ int main(int argc, char **argv)
   int trace_view_on = 0;
   int flush_counter_1 = 4, flush_counter_2 = 4; //5 stage pipeline, so we have to move 4 instructions once trace is done
   unsigned int cycle_number = 0;
-  struct prefetch_queue pq = {NO_OP, NO_OP};
+  struct prefetch_queue_m2 pq = {NO_OP, NO_OP, NO_OP, NO_OP};
   struct packing_buffer pb = {NO_OP, NO_OP};
 
   if (argc == 1) {
@@ -113,7 +113,7 @@ int main(int argc, char **argv)
   trace_init();
 
   while(1) {
-    if(pq.instr1.PC == 0){
+    if(pq.instr1_1.PC == 0){
       size_1 = trace_get_item(&tr_entry_1); /* put the instruction into a buffer */
       if(size_1) {
         size_2 = trace_get_item(&tr_entry_2);
@@ -147,27 +147,27 @@ int main(int argc, char **argv)
       EX_2 = ID_2;
       ID_2 = IF_2;
 
-      if(!size_1 && (pq.instr1.PC == 0)){    /* if no more instructions in trace, reduce flush_counter */
+      if(!size_1 && (pq.instr1_1.PC == 0)){    /* if no more instructions in trace, reduce flush_counter */
         flush_counter_1--;
         flush_counter_2--;   
       }
       else{   /* put into prefetch queue */
         struct instruction temp1, temp2;
-        if(pq.instr1.PC == 0){
+        if(pq.instr1_1.PC == 0){
            memcpy(&temp1, tr_entry_1, sizeof(temp1));
            memcpy(&temp2, tr_entry_2, sizeof(temp2));
          }
          else{
-          temp1 = pq.instr1;
+          temp1 = pq.instr1_1;
           memcpy(&temp2, tr_entry_1, sizeof(temp2));
-          pq.instr1 = NO_OP;
+          pq.instr1_1 = NO_OP;
          }
         switch(temp1.type){
           case(ti_BRANCH) :
           case(ti_JTYPE) :
           case(ti_JRTYPE): {
             pb.inst_for_pipe_1 = temp1;
-            pq.instr1 = temp2;
+            pq.instr1_1 = temp2;
             pb.inst_for_pipe_2 = NO_OP;
             break;
           }
@@ -179,7 +179,7 @@ int main(int argc, char **argv)
               pb.inst_for_pipe_2 = temp2;
             }
             else{
-              pq.instr1 = temp2;
+              pq.instr1_1 = temp2;
               pb.inst_for_pipe_2 = NO_OP;
             }
             break;
@@ -188,7 +188,7 @@ int main(int argc, char **argv)
           case(ti_STORE) : {
             pb.inst_for_pipe_2 = temp1;
             if((temp2.type == ti_LOAD) || (temp2.type == ti_STORE)){
-              pq.instr1 = temp2;
+              pq.instr1_1 = temp2;
               pb.inst_for_pipe_1 = NO_OP;
             }
             else{
