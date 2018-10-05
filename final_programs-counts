@@ -1,0 +1,60 @@
+------FIVE STAGE COUNTS: TEAM final_programs -----
+--------------SAMPLE TRACE-------------------
+** prediction_method: 0 **
+ ** opening file /afs/cs.pitt.edu/courses/1541/short_traces/sample.tr
++ Simulation terminates at cycle : 1092
+** prediction_method: 1 **
+ ** opening file /afs/cs.pitt.edu/courses/1541/short_traces/sample.tr
++ Simulation terminates at cycle : 1073
+--------------LONG TRACES-------------------
+** prediction_method: 0 **
+ ** opening file /afs/cs.pitt.edu/courses/1541/long_traces/sample_large1.tr
++ Simulation terminates at cycle : 105277704
+** prediction_method: 1 **
+ ** opening file /afs/cs.pitt.edu/courses/1541/long_traces/sample_large1.tr
++ Simulation terminates at cycle : 102394047
+** prediction_method: 0 **
+ ** opening file /afs/cs.pitt.edu/courses/1541/long_traces/sample_large2.tr
++ Simulation terminates at cycle : 114847364
+** prediction_method: 1 **
+ ** opening file /afs/cs.pitt.edu/courses/1541/long_traces/sample_large2.tr
++ Simulation terminates at cycle : 110611509
+--------------SHORT TRACES-------------------
+** prediction_method: 0 **
+ ** opening file /afs/cs.pitt.edu/courses/1541/short_traces/sample1.tr
++ Simulation terminates at cycle : 1137056
+** prediction_method: 1 **
+ ** opening file /afs/cs.pitt.edu/courses/1541/short_traces/sample1.tr
++ Simulation terminates at cycle : 1127743
+** prediction_method: 0 **
+ ** opening file /afs/cs.pitt.edu/courses/1541/short_traces/sample2.tr
++ Simulation terminates at cycle : 1127791
+** prediction_method: 1 **
+ ** opening file /afs/cs.pitt.edu/courses/1541/short_traces/sample2.tr
++ Simulation terminates at cycle : 1121606
+** prediction_method: 0 **
+ ** opening file /afs/cs.pitt.edu/courses/1541/short_traces/sample3.tr
++ Simulation terminates at cycle : 1223162
+** prediction_method: 1 **
+ ** opening file /afs/cs.pitt.edu/courses/1541/short_traces/sample3.tr
++ Simulation terminates at cycle : 1205933
+** prediction_method: 0 **
+ ** opening file /afs/cs.pitt.edu/courses/1541/short_traces/sample4.tr
++ Simulation terminates at cycle : 3488001
+** prediction_method: 1 **
+ ** opening file /afs/cs.pitt.edu/courses/1541/short_traces/sample4.tr
++ Simulation terminates at cycle : 3455280
+
+
+------SUPERSCALAR COUNTS: TEAM final_programs -----
+--------------SAMPLE TRACE-------------------
+
+ ** opening file /afs/cs.pitt.edu/courses/1541/short_traces/sample.tr
++ Simulation terminates at cycle : 527
+
+ ** opening file /afs/cs.pitt.edu/courses/1541/short_traces/sample.tr
++ Simulation terminates at cycle : 527
+--------------LONG TRACES-------------------
+
+ ** opening file /afs/cs.pitt.edu/courses/1541/long_traces/sample_large1.tr
++ Simulation terminates at cycle : 46836405
