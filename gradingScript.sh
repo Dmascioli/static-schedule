@@ -14,7 +14,7 @@ fi
 TEAM=$1
 
 ## compile the simulator files within team directory
-#gcc -std=gnu99 -o ./$TEAM/cpu ./$TEAM/five_stage.c -I./
+gcc -std=gnu99 -o ./$TEAM/cpu ./$TEAM/five_stage.c -I./
 #gcc -std=gnu99 -o ./$TEAM/ss ./$TEAM/superscalar.c -I./
 
 ## write the five stage simulator output and cycle counts for provided traces
